@@ -1,58 +1,22 @@
 import numpy as np
 import essentia
 import essentia.standard as ess
-import IPython.display as ipd
 import os
 import math
 from pydub import AudioSegment
 
-file_path = os.path.join("Creepin Piano.m4a")
+file_path = os.path.join("nonCodeFiles/Creepin Piano.m4a")
 
-EXPECTED_SAMPLE_RATE = 16000
-
-def convert_audio_for_model(user_file, output_file='converted_audio_file.wav'):
+def convert_audio_for_model(user_file, output_file=file_path[:-4]+'.wav'):
   audio = AudioSegment.from_file(user_file)
-  audio = audio.set_frame_rate(EXPECTED_SAMPLE_RATE).set_channels(1)
+  audio = audio.set_frame_rate(16000).set_channels(1)
   audio.export(output_file, format="wav")
   return output_file
-converted_audio_file = convert_audio_for_model(file_path)
-
-# uploaded = wave.open(file_path, "r")
-# filen = list(uploaded.keys())[0]
-Fs = 44100
-audio1 = ess.MonoLoader(sampleRate=Fs, filename=converted_audio_file)()
-ipd.Audio(audio1, rate=Fs)
-W = 1024
-H = 512
-w = ess.Windowing(type='hann')
-fft = ess.FFT()
-c2p = ess.CartesianToPolar()
-pool = essentia.Pool()
-acf = ess.AutoCorrelation()
-for frame in ess.FrameGenerator(audio1, frameSize=W, hopSize=H):
-    mag, phase, = c2p(fft(w(frame)))
-    autocorr = acf(w(frame))
-    pool.add('mag_spec', mag)
-    pool.add('phase_spec', phase)
-    pool.add('acf', autocorr)
-freq = np.arange((int)(W/2) + 1)*(Fs/W)
-# PYin using essentia
-pyin = ess.PitchYinProbabilistic(
-    frameSize=W, hopSize=H, lowRMSThreshold=0.0001, preciseTime=True)
-pyin_p, vp = pyin(audio1)
-
-sorted_pitch = []
-for pitch in pyin_p:
-    if (pitch > 0):
-        sorted_pitch.append(pitch)
-
-# print(sorted_pitch)
-# print(len(sorted_pitch))
-
-# convert hz to notes
-
 
 def quantize_predictions(ideal_offset, freq):
+    A4 = 440
+    C0 = A4 * pow(2, -4.75)
+    note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
     h = round(12 * math.log2(freq / C0))
     # test cases outside
     # h = round(12 * math.log2(freq / C0) - ideal_offset)
@@ -60,13 +24,6 @@ def quantize_predictions(ideal_offset, freq):
     n = h % 12
     note = note_names[n] + str(octave)
     return note
-
-
-A4 = 440
-C0 = A4 * pow(2, -4.75)
-note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-note_list = []
-midi_notes = []
 
 
 def cleanPitches(note_midi_nums, intervals):
@@ -146,7 +103,7 @@ def cleanPitches(note_midi_nums, intervals):
     return note_midi_nums
 
 
-def getNotesFromArray(uploaded_file_name):
+def getNotesFromArray(uploaded_file_name, note_list):
     pitch_outputs = []
     for i in range(len(uploaded_file_name)):
         pitch_outputs.append(uploaded_file_name[i])
@@ -182,23 +139,57 @@ def getNotesFromArray(uploaded_file_name):
     return note_midi_nums
     # print(note_list)
 
+def extractPitch(file_path):
+    converted_audio_file = convert_audio_for_model(file_path)
+    Fs = 44100
+    audio1 = ess.MonoLoader(sampleRate=Fs, filename=converted_audio_file)()
+    W = 1024
+    H = 512
+    w = ess.Windowing(type='hann')
+    fft = ess.FFT()
+    c2p = ess.CartesianToPolar()
+    pool = essentia.Pool()
+    acf = ess.AutoCorrelation()
+    for frame in ess.FrameGenerator(audio1, frameSize=W, hopSize=H):
+        mag, phase, = c2p(fft(w(frame)))
+        autocorr = acf(w(frame))
+        pool.add('mag_spec', mag)
+        pool.add('phase_spec', phase)
+        pool.add('acf', autocorr)
+    freq = np.arange((int)(W/2) + 1)*(Fs/W)
+    # PYin using essentia
+    pyin = ess.PitchYinProbabilistic(
+        frameSize=W, hopSize=H, lowRMSThreshold=0.0001, preciseTime=True)
+    pyin_p, vp = pyin(audio1)
 
-midi_notes = getNotesFromArray(sorted_pitch)
-temp_arr = np.array(midi_notes)
-new_arr = np.concatenate((np.array([0]), temp_arr))
-interval_arr = new_arr[:-1]-temp_arr
-for i in range(len(interval_arr)):
-    if (interval_arr[i] > 10 or interval_arr[i] < -10):
-        interval_arr[i] = 0
-# print("intervals ", interval_arr)
-interval_arr = np.concatenate((np.array([0, 0, 0, 0, 0]), interval_arr))
-interval_arr = np.concatenate((interval_arr, np.array([0, 0, 0, 0, 0])))
-interval_arr[interval_arr == -1] = 0
-interval_arr[interval_arr == 1] = 0
-cleaned_midi_notes = cleanPitches(midi_notes, interval_arr)
-print(cleaned_midi_notes)
-file = open("output.txt","w") 
- 
-file.write(str(cleaned_midi_notes))
- 
-file.close() 
+    sorted_pitch = []
+    for pitch in pyin_p:
+        if (pitch > 0):
+            sorted_pitch.append(pitch)
+
+    A4 = 440
+    C0 = A4 * pow(2, -4.75)
+    note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    note_list = []
+    midi_notes = []
+    midi_notes = getNotesFromArray(sorted_pitch, note_list)
+    temp_arr = np.array(midi_notes)
+    new_arr = np.concatenate((np.array([0]), temp_arr))
+    interval_arr = new_arr[:-1]-temp_arr
+    for i in range(len(interval_arr)):
+        if (interval_arr[i] > 10 or interval_arr[i] < -10):
+            interval_arr[i] = 0
+    # print("intervals ", interval_arr)
+    interval_arr = np.concatenate((np.array([0, 0, 0, 0, 0]), interval_arr))
+    interval_arr = np.concatenate((interval_arr, np.array([0, 0, 0, 0, 0])))
+    interval_arr[interval_arr == -1] = 0
+    interval_arr[interval_arr == 1] = 0
+    cleaned_midi_notes = cleanPitches(midi_notes, interval_arr)
+    # print(cleaned_midi_notes)
+    file_name = file_path[:-4] + ".txt"
+    file = open(file_name,"w") 
+    
+    file.write(str(cleaned_midi_notes))
+    
+    file.close() 
+    return cleaned_midi_notes
