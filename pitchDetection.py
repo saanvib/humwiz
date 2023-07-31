@@ -1,18 +1,26 @@
-from scipy.io import wavfile
 import numpy as np
 import essentia
 import essentia.standard as ess
-import matplotlib.pyplot as plt
 import IPython.display as ipd
-import matplotlib
 import os
 import math
-import wave
-file_path = os.path.join("New Recording 35.wav")
+from pydub import AudioSegment
+
+file_path = os.path.join("Creepin Piano.m4a")
+
+EXPECTED_SAMPLE_RATE = 16000
+
+def convert_audio_for_model(user_file, output_file='converted_audio_file.wav'):
+  audio = AudioSegment.from_file(user_file)
+  audio = audio.set_frame_rate(EXPECTED_SAMPLE_RATE).set_channels(1)
+  audio.export(output_file, format="wav")
+  return output_file
+converted_audio_file = convert_audio_for_model(file_path)
+
 # uploaded = wave.open(file_path, "r")
 # filen = list(uploaded.keys())[0]
 Fs = 44100
-audio1 = ess.MonoLoader(sampleRate=Fs, filename=file_path)()
+audio1 = ess.MonoLoader(sampleRate=Fs, filename=converted_audio_file)()
 ipd.Audio(audio1, rate=Fs)
 W = 1024
 H = 512
