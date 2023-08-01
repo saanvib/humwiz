@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn import tree 
 import pitchDetection as pitch
+import os
 
 def splitsongs(input, size):
     if not isinstance(input, list):
@@ -86,20 +87,16 @@ def addtodata(filepath,label):
 10 = A# MAJOR/ G MINOR
 11 = B MAJOR/ G# MINOR """
 
-addtodata("nonCodeFiles/Baby.mid",3)
-addtodata("nonCodeFiles/Happy Birthday MIDI.mid", 0)
-addtodata("nonCodeFiles/ShakeItOff.mid",7)
-addtodata("nonCodeFiles/WIWYM.mid",0) 
-addtodata("nonCodeFiles/melodyBackstreet Boys - I Want It That Way.mid", 9)
-addtodata("MIDIS/A/A_major_scale.mid", 9)
-addtodata('nonCodeFiles/Creepin.mid', 4)
-addtodata('nonCodeFiles/Partyintheusa.mid',5)
-addtodata('MIDIS/B/G-sharp_natural_minor_scale_ascending_and_descending.mid', 11)
-addtodata('MIDIS/A#/B-flat_major.mid', 10)
-addtodata('MIDIS/C/C_major_scale.mid', 0)
-addtodata('MIDIS/D/B_natural_minor_scale_ascending_and_descending.mid', 2)
-
-#addtodata((a[b] for b in range(len(a))),9)
+NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A', 'A#','B']
+NUMS = [i for i in range(12)]
+def upload(curr_path):
+    for folder in os.listdir(curr_path):
+        fol = os.path.join(curr_path, folder)
+        for file in os.listdir(fol):
+            f = os.path.join(fol, file)
+            addtodata(str(f),NOTES.index(str(folder)))
+        
+upload("MIDIS/")
 
 dataset = np.concatenate([i[0] for i in array_list], axis = 0)
 dlabels = numpy.concatenate([i[1] for i in array_list], axis = 0)
@@ -127,7 +124,8 @@ a = tree.plot_tree(clf,
                    fontsize=14)
 plt.show()
 
-midi_notes_arr = pitch.extractPitch("nonCodeFiles/When i was your man piano.m4a")
+midi_notes_arr = pitch.extractPitch("nonCodeFiles/New Recording 47.m4a")
 
 pred = clf.predict(finaloutput(midi_notes_arr, 10000))
 print(pred)
+print(NOTES[pred[0]])
