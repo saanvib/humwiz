@@ -4,6 +4,7 @@ import numpy
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn import tree 
+
 import pitchDetection as pitch
 import os
 
@@ -70,9 +71,10 @@ def labels(fin, lbl):
     labs = np.array(labs)
     return fin, labs
 
-array_list = []
-def addtodata(filepath,label):
+
+def addtodata(filepath,label, array_list):
     array_list.append(labels(finaloutput(filepath, 30), label))
+    return array_list
 """       LABELS
 0 = C MAJOR/ A MINOR
 1 = C# MAJOR/ A# MINOR
@@ -87,45 +89,58 @@ def addtodata(filepath,label):
 10 = A# MAJOR/ G MINOR
 11 = B MAJOR/ G# MINOR """
 
-NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A', 'A#','B']
-NUMS = [i for i in range(12)]
-def upload(curr_path):
+def upload(curr_path, array_l):
+    NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A', 'A#','B']
     for folder in os.listdir(curr_path):
         fol = os.path.join(curr_path, folder)
         for file in os.listdir(fol):
             f = os.path.join(fol, file)
-            addtodata(str(f),NOTES.index(str(folder)))
+            array_l = addtodata(str(f),NOTES.index(str(folder)), array_l)
+    return array_l
         
-upload("MIDIS/")
 
-dataset = np.concatenate([i[0] for i in array_list], axis = 0)
-dlabels = numpy.concatenate([i[1] for i in array_list], axis = 0)
+def main(file_n):
+    array_list = []
+    array_list = upload("MIDIS/", array_list)
 
-column_values = ['C','C#','D','D#','E','F','F#','G','G#','A', 'A#','B']
 
-X = dataset
-Y = dlabels
-table = pd.DataFrame(data=dataset, index=dlabels, columns=column_values, dtype=None, copy=None)
-print(table)
-#print('X', X.shape, 'Y', Y.shape)
-clf = tree.DecisionTreeClassifier()
-clf = clf.fit(X, Y)  
-plt.figure(figsize=(30,10), facecolor ='k')
-a = tree.plot_tree(clf,
+    dataset = np.concatenate([i[0] for i in array_list], axis = 0)
+    dlabels = numpy.concatenate([i[1] for i in array_list], axis = 0)
 
-                   feature_names = column_values,
+    column_values = ['C','C#','D','D#','E','F','F#','G','G#','A', 'A#','B']
 
-                   class_names = [str(i) for i in dlabels],
+    X = dataset
+    Y = dlabels
+    table = pd.DataFrame(data=dataset, index=dlabels, columns=column_values, dtype=None, copy=None)
+    # print(table)
+    #print('X', X.shape, 'Y', Y.shape)
+    clf = tree.DecisionTreeClassifier()
+    clf = clf.fit(X, Y)  
+    plt.figure(figsize=(30,10), facecolor ='k')
+    a = tree.plot_tree(clf,
 
-                   rounded = True,
+                    feature_names = column_values,
 
-                   filled = True,
+                    class_names = [str(i) for i in dlabels],
 
-                   fontsize=14)
-plt.show()
+                    rounded = True,
 
-midi_notes_arr = pitch.extractPitch("nonCodeFiles/New Recording 47.m4a")
+                    filled = True,
 
-pred = clf.predict(finaloutput(midi_notes_arr, 10000))
-print(pred)
-print(NOTES[pred[0]])
+                    fontsize=14)
+    # plt.show()
+
+
+
+    NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A', 'A#','B']
+    CORRESPONDING_MINOR = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
+    midi_notes_arr = pitch.extractPitch(file_n)
+
+    pred = clf.predict(finaloutput(midi_notes_arr, 10000))
+    print(pred)
+    print(NOTES[pred[0]])
+    end_list = []
+    end_list.append(NOTES[pred[0]])
+    end_list.append(CORRESPONDING_MINOR[pred[0]])
+    return end_list
+
