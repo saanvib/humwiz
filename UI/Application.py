@@ -19,14 +19,15 @@ class Final(FloatLayout):
     number = NumericProperty()
     major = StringProperty("")
     minor = StringProperty("")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.file = StringProperty("")
-    
+
     def wait(self):
         time.sleep(15)
         self.stop()
-        self.ids.Recording.y = 5000
+        self.ids.Recording.pos_hint = {"center_x": .5, "center_y": 5000}
         self.major = "C"
         self.minor = "A"
         self.ids.watch.y = 1000
@@ -43,7 +44,7 @@ class Final(FloatLayout):
         self.ids.but_record.y = 5000
         self.ids.stop_input.y = 0
         self.ids.input_instructions.pos_hint = {"center_x": .5, "center_y": .8}
-        self.ids.input.y = 200
+        self.ids.input.y = 180
 
     def before_record(self):
         self.ids.title.pos_hint = {"center_x": .5, "center_y": 100}
@@ -79,7 +80,6 @@ class Final(FloatLayout):
     def stop(self):
         Clock.unschedule(self.increment_time)
     
-
 
 class HumWizApp(App):
     pass
