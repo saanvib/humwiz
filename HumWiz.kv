@@ -1,9 +1,20 @@
 Final: 
 
 <Final>:
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    Image:
+        id: image
+        source: "logo.ico"
+        pos_hint: {"center_x": .5, "center_y": .7}
     TextInput:
         id: input
         font_size: 20
+        font_name: "Oswald-Regular"
         height: 100
         size_hint_y: None  
         pos: (0, 2000)
@@ -11,34 +22,45 @@ Final:
         id: final_display
         text: str("The key is either " + root.major + " major or " +  root.minor + " minor")
         font_size: "30dp"
+        color: (0, 0, 0, 1)
+        font_name: "Oswald-Regular"
         size_hint: .25, .25
         pos_hint: {"center_x": .5, "center_y": 100}
     Label:
         id: title
+        font_name: "Oswald-Regular"
         text: "Welcome to HumWiz!"
+        color: (0, 0, 0, 1)
         size_hint: .25, .25
         font_size: "60dp"
-        pos_hint: {"center_x": .5, "center_y": .75}
+        pos_hint: {"center_x": .5, "center_y": .4}
     Label:
         id: watch
+        font_name: "Oswald-Regular"
+        color: (0, 0, 0, 1)
         text: str(round(root.number))
         font_size: "50dp"
         pos: 0, 50000
     Button:
         id: stop_input
         text: "Enter"
+        font_name: "Oswald-Regular"
         on_press: root.stop_input()
         size_hint: 1, .25
         font_size: "25dp"
         pos: 0, 5000
     Label:
+        color: (0, 0, 0, 1)
+        font_name: "Oswald-Regular"
         id: Recording
         text: "Recording..."
         size_hint: .25, .25
         font_size: "50dp"
         pos_hint: {"center_x": .5, "center_y": 100}
     Label:
+        color: (0, 0, 0, 1)
         id: input_instructions
+        font_name: "Oswald-Regular"
         text: "Copy the file location"
         size_hint: .25, .25
         font_size: "50dp"
@@ -49,6 +71,7 @@ Final:
         spacing: "50dp"
         Button:
             id: but_input
+            font_name: "Oswald-Regular"
             disabled: False
             text: "Input File"
             font_size: "25dp"
@@ -57,6 +80,7 @@ Final:
             pos_hint: {"bottom": .5}
         Button:
             id: but_record
+            font_name: "Oswald-Regular"
             disabled: False
             text: "Record a 15-sec snippet"
             on_press: root.before_record()
