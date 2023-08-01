@@ -47,6 +47,7 @@ class Final(FloatLayout):
         self.ids.stop_input.y = 0
         self.ids.input_instructions.pos_hint = {"center_x": .5, "center_y": .8}
         self.ids.input.y = 180
+        self.ids.image.pos_hint = {"center_x": .5, "center_y": 100}
 
     def before_record(self):
         self.ids.title.pos_hint = {"center_x": .5, "center_y": 100}
@@ -54,6 +55,7 @@ class Final(FloatLayout):
         self.ids.but_input.y = 5000
         self.ids.but_record.y = 5000
         self.ids.watch.y = 0
+        self.ids.image.pos_hint = {"center_x": .5, "center_y": 100}
         self.start_recording()
         self.start()
         
