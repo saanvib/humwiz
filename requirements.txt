@@ -1,0 +1,10 @@
+kivy
+scipy
+numpy
+music21
+sounddevice
+pandas
+scikit-learn
+essentia
+pydub
+pygame

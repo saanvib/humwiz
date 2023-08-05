@@ -69,20 +69,6 @@ def cleanPitches(note_midi_nums, intervals):
         for j in range(start_onset, end_onset):
             note_midi_nums[j] = avg
 
-        # for j in range(first_note, last_note):
-
-        #   if (j < len(note_midi_nums) and (not note_midi_nums[j] == -1) and not abs(onset[j]) == 1):
-        #     c+=1
-        #     avg += note_midi_nums[j]
-        # if (not c == 0):
-        #   avg = int(avg/c)
-        # if (i < len(note_midi_nums)-1 and (avg == note_midi_nums[i+1] or intervals[i] == -1 or intervals[i] == 1 or intervals[i] > 10 or intervals[i] < -10)):
-        #     del note_midi_nums[i]
-        #     del note_midi_nums[i]
-        # elif (i < len(note_midi_nums) and (avg == note_midi_nums[i] or avg == note_midi_nums[i-1])):
-        #   note_midi_nums[i] = avg
-
-    # TODO: clean more than an octave jumps
     i = 0
     tot_avg = 0
 
@@ -92,6 +78,8 @@ def cleanPitches(note_midi_nums, intervals):
         else:
             tot_avg += note_midi_nums[i]
             i += 1
+    if len(note_midi_nums) == 0:
+        print("invalid division")
     tot_avg = tot_avg/len(note_midi_nums)
     i = 0
     while i < len(note_midi_nums):

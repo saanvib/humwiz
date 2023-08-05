@@ -20,7 +20,7 @@ Final:
         pos: (0, 2000)
     Label:
         id: final_display
-        text: str("The key is either " + root.major + " major or " +  root.minor + " minor")
+        text: str(root.major +  root.minor)
         font_size: "30dp"
         color: (0, 0, 0, 1)
         font_name: "Oswald-Regular"
@@ -82,7 +82,7 @@ Final:
             id: but_record
             font_name: "Oswald-Regular"
             disabled: False
-            text: "Record a 15-sec snippet"
+            text: "Record a 10-sec snippet"
             on_press: root.before_record()
             size_hint: .25, .25
             font_size: "25dp"

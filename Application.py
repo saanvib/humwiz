@@ -8,12 +8,12 @@ from kivy.properties import NumericProperty
 import sounddevice as sd
 from scipy.io.wavfile import write
 from kivy.clock import Clock
-from Key_Detection import main
+from Key_Detection import finalFunc
 # Sampling frequency
 freq = 44100
 
 #duration
-duration = 15
+duration = 10
 
 class Final(FloatLayout):
     number = NumericProperty()
@@ -22,13 +22,12 @@ class Final(FloatLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.file = StringProperty("")
-    
     def wait(self):
-        time.sleep(15)
+        time.sleep(10)
         self.stop()
         self.ids.Recording.pos_hint = {"center_x": .5, "center_y": 5000}
-        self.major = "loading"
-        self.minor = "loading"
+        self.major = "loading..."
+        self.minor = ""
         self.ids.watch.y = 1000
         self.ids.final_display.pos_hint = {"center_x": .5, "center_y": .5}
     
@@ -36,9 +35,9 @@ class Final(FloatLayout):
         self.recording = sd.rec(int(duration * freq), samplerate = freq, channels = 1)
         sd.wait()
         write("recording0.wav", freq, self.recording)
-        x = main("recording0.wav")
-        self.major = x[0]
-        self.minor = x[1]
+        x = finalFunc("recording0.wav")
+        self.major = "The key is " + x[0] + " major ("
+        self.minor = x[1] + " minor)"
 
     def on_button_click(self):
         self.ids.title.pos_hint = {"center_x": .5, "center_y": 100}
@@ -69,11 +68,11 @@ class Final(FloatLayout):
         self.ids.stop_input.y = 5000
         self.ids.input_instructions.pos_hint = {"center_x": .5, "center_y": 1000}
         self.ids.input.y = 20000
-        self.major = "loading"
-        self.minor = "loading"
+        self.major = "loading..."
+        self.minor = ""
         self.file = self.ids.input.text
         print(self.file)
-        main(self.file)
+        finalFunc(self.file)
         self.ids.final_display.pos_hint = {"center_x": .5, "center_y": .5}
 
     def increment_time(self, interval):
